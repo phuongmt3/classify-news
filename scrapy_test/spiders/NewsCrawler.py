@@ -1,5 +1,4 @@
 import random
-
 import scrapy
 
 
@@ -7,7 +6,7 @@ class QuotesSpider(scrapy.Spider):
     name = "NewsCrawler"
 
     start_urls = ['https://vietnamnet.vn/tin-tuc-24h']
-    pageLimit = 100
+    pageLimit = 1000
     cnt = 0
 
     def parse(self, response):
@@ -21,12 +20,12 @@ class QuotesSpider(scrapy.Spider):
         if contents and response.css('.bread-crumb-detail  a::attr(title)').get() \
                 and category != 'Video' and category != 'Premium':
             self.cnt += 1
-            if 60 < random.randint(0, 100) <= 80:
+            if 50 < random.randint(0, 100) <= 80:
                 ftest = open('scrapy_test/spiders/Output/testSet.txt', 'a+', encoding='utf-8')
                 ftestans = open('scrapy_test/spiders/Output/testAns.txt', 'a+', encoding='utf-8')
                 ftest.write(title + ' ' + response.css('meta[name*=description]::attr(content)').get().strip() + ' ')
                 for p in contents:
-                    ftest.write(p.get().strip() + ' ')
+                    ftest.write(p.get().strip().replace('\n', ' ') + ' ')
                 ftest.write('\n')
                 ftestans.write(getSubjectName(category, keywords, title) + '\n')
                 ftest.close()
@@ -37,7 +36,7 @@ class QuotesSpider(scrapy.Spider):
                 ftrain.write(getSubjectName(category, keywords, title) + '  ')
                 ftrain.write(title + ' ' + response.css('meta[name*=description]::attr(content)').get().strip() + ' ')
                 for p in contents:
-                    ftrain.write(p.get().strip() + ' ')
+                    ftrain.write(p.get().strip().replace('\n', ' ') + ' ')
                 ftrain.write('\n')
                 ftrain.close()
 
@@ -64,7 +63,7 @@ def getSubjectName(category, keywords, title):
         'Thông tin và Truyền thông': '__thong-tin-truyen-thong__',
         'Ô tô - Xe máy': '__oto-xe-may__', 'Bất động sản': '__bat-dong-san__', 'Bạn đọc': '__ban-doc__',
         'Du lịch': '__du-lich__', 'Sức khỏe': '__suc-khoe__', 'Dân tộc - Tôn giáo': '__dan-toc-ton-giao__',
-        'Thị trường - tiêu dùng': '__thi-truong-tieu-dung__'
+        'Thị trường - tiêu dùng': '__thi-truong-tieu-dung__', 'Tư liệu': '__tu-lieu__'
     }
     if category not in switcher.keys():
         with open('scrapy_test/spiders/Output/unlabeledTrainSet.txt', 'a+', encoding='utf-8') as f:
