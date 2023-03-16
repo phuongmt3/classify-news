@@ -14583,9 +14583,10 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">underthesea</span> <span class="kn">import</span> <span class="n">pos_tag</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">import</span> <span class="nn">csv</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">dic</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">labelWordCnt</span> <span class="o">=</span> <span class="p">{}</span>
 </pre></div>
 
      </div>
@@ -14602,12 +14603,11 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">preprosTrain</span><span class="p">():</span>
-    <span class="n">dic</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'scrapy_test/spiders/Output/labels.txt'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
-            <span class="n">labels</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
-            
+            <span class="n">labels</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">labelWordCnt</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="mi">0</span>
+
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'scrapy_test/spiders/Output/trainSet.txt'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">para</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
             <span class="n">category</span><span class="p">,</span> <span class="n">para</span> <span class="o">=</span> <span class="n">para</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'  '</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
@@ -14615,12 +14615,11 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
                 <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'V'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">'^N'</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
                     <span class="n">w</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'['</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span> <span class="o">+</span> <span class="s1">']'</span><span class="p">,</span> <span class="s1">' '</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">''</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">w</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dic</span><span class="p">:</span>
-                            <span class="n">dic</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
-                        <span class="n">dic</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="n">labels</span><span class="p">[</span><span class="n">category</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dic</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">labels</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'featureVectors.csv'</span><span class="p">)</span>
+                        <span class="n">dic</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">dic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dic</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">dic</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">category</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+                            <span class="n">labels</span><span class="p">[</span><span class="n">category</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">labels</span><span class="p">[</span><span class="n">category</span><span class="p">][</span><span class="n">dic</span><span class="p">[</span><span class="n">w</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">labelWordCnt</span><span class="p">[</span><span class="n">category</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 </pre></div>
 
      </div>
@@ -14636,28 +14635,16 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">labelWordCnt</span> <span class="o">=</span> <span class="p">{}</span>
-
-<span class="k">def</span> <span class="nf">train</span><span class="p">():</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'scrapy_test/spiders/Output/labels.txt'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
-            <span class="n">labelWordCnt</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="mi">0</span>
-    
-    <span class="k">global</span> <span class="n">df</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'featureVectors.csv'</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'Unnamed: 0'</span><span class="p">)</span>
-    
-    <span class="c1"># chuan hoa vector theo cot</span>
-    <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
-        <span class="n">mx</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="n">mn</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">df</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">-</span> <span class="n">mn</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">mx</span> <span class="o">-</span> <span class="n">mn</span><span class="p">)</span>
-    
-    <span class="c1"># tinh p(c), p(wj|c)</span>
-    <span class="n">totalWordCnt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
-    <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-        <span class="n">sumOfGroup</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gr</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gr</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gr</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">sumOfGroup</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
-        <span class="n">labelWordCnt</span><span class="p">[</span><span class="n">gr</span><span class="p">]</span> <span class="o">=</span> <span class="n">sumOfGroup</span> <span class="o">/</span> <span class="n">totalWordCnt</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">train</span><span class="p">():</span>
+    <span class="n">totalWordCnt</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dic</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">gr</span><span class="p">]),</span> <span class="mi">0</span><span class="p">)):</span>
+            <span class="n">labels</span><span class="p">[</span><span class="n">gr</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">gr</span><span class="p">])):</span>
+            <span class="n">labels</span><span class="p">[</span><span class="n">gr</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">gr</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">labelWordCnt</span><span class="p">[</span><span class="n">gr</span><span class="p">]</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">dic</span><span class="p">))</span>
+        <span class="n">totalWordCnt</span> <span class="o">+=</span> <span class="n">labelWordCnt</span><span class="p">[</span><span class="n">gr</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="n">labelWordCnt</span><span class="p">[</span><span class="n">gr</span><span class="p">]</span> <span class="o">=</span> <span class="n">labelWordCnt</span><span class="p">[</span><span class="n">gr</span><span class="p">]</span> <span class="o">/</span> <span class="n">totalWordCnt</span>
 </pre></div>
 
      </div>
@@ -14681,7 +14668,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 </div>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -14689,9 +14676,67 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train</span><span class="p">()</span>
+<span class="n">labelWordCnt</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+
+
+<div class="jp-OutputArea jp-Cell-outputArea">
+
+<div class="jp-OutputArea-child">
+
+    
+    <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
+
+
+
+
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain">
+<pre>{&#39;__thoi-su__&#39;: 0.14088243455739524,
+ &#39;__kinh-doanh__&#39;: 0.10053834057903986,
+ &#39;__giai-tri__&#39;: 0.08150217371196004,
+ &#39;__the-gioi__&#39;: 0.08387013227268522,
+ &#39;__giao-duc__&#39;: 0.0772953473314217,
+ &#39;__doi-song__&#39;: 0.06352418832670428,
+ &#39;__phap-luat__&#39;: 0.0276163167144575,
+ &#39;__the-thao__&#39;: 0.11321061881417076,
+ &#39;__moi-truong__&#39;: 0.0,
+ &#39;__oto-xe-may__&#39;: 0.06399778003884932,
+ &#39;__bat-dong-san__&#39;: 0.029066691332901674,
+ &#39;__ban-doc__&#39;: 0.01154749791878642,
+ &#39;__du-lich__&#39;: 0.04194246600684488,
+ &#39;__suc-khoe__&#39;: 0.06895939321061881,
+ &#39;__dan-toc-ton-giao__&#39;: 0.0,
+ &#39;__thong-tin-truyen-thong__&#39;: 0.06470446767181574,
+ &#39;__thi-truong-tieu-dung__&#39;: 0.0056387013227268525,
+ &#39;__tu-lieu__&#39;: 0.025703450189621682}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
 <span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">df</span>
     <span class="n">ans</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'scrapy_test/spiders/Output/testSet.txt'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">para</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
@@ -14706,16 +14751,18 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
                 <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'V'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">'^N'</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
                     <span class="n">w</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'['</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span> <span class="o">+</span> <span class="s1">']'</span><span class="p">,</span> <span class="s1">' '</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">w</span> <span class="o">!=</span> <span class="s1">''</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">w</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">dic</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
                             <span class="k">continue</span>
-                        <span class="k">for</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">labelWordCnt</span><span class="p">:</span>
-                            <span class="n">prob</span><span class="p">[</span><span class="n">typ</span><span class="p">]</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">typ</span><span class="p">,</span> <span class="n">w</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                            <span class="n">prob</span><span class="p">[</span><span class="n">typ</span><span class="p">]</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">typ</span><span class="p">][</span><span class="n">dic</span><span class="p">[</span><span class="n">w</span><span class="p">]],</span> <span class="mi">2</span><span class="p">)</span>
             
             <span class="n">prob</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">prob</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">ans</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">prob</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">prob</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]])</span>
     
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'scrapy_test/spiders/Output/testAns.txt'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">total</span><span class="p">,</span> <span class="n">correct1</span><span class="p">,</span> <span class="n">correct2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">correct1</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">correct2</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">total</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">ans</span><span class="p">):</span>
                 <span class="k">break</span>
@@ -14739,11 +14786,10 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train</span><span class="p">()</span>
-<span class="n">test</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test</span><span class="p">()</span>
 </pre></div>
 
      </div>
@@ -14765,8 +14811,8 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 
 
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain">
-<pre>Accuracy with top 1 result:  83.27272727272728 %
-Accuracy with top 2 result:  93.45454545454545 %
+<pre>Accuracy with top 1 result:  81.81818181818183 %
+Accuracy with top 2 result:  91.27272727272727 %
 </pre>
 </div>
 </div>

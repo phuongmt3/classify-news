@@ -6,7 +6,7 @@ class QuotesSpider(scrapy.Spider):
     name = "NewsCrawler"
 
     start_urls = ['https://vietnamnet.vn/tin-tuc-24h']
-    pageLimit = 1000
+    pageLimit = 100
     cnt = 0
 
     def parse(self, response):
