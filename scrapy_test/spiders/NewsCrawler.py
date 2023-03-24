@@ -5,54 +5,50 @@ import scrapy
 class QuotesSpider(scrapy.Spider):
     name = "NewsCrawler"
 
-    start_urls = ['https://vietnamnet.vn/tin-tuc-24h']
-    pageLimit = 1000
+    pageLimit = 60
     cnt = 0
+
+    def start_requests(self):
+        urls = []
+        for i in range(10):
+            urls.append('https://vietnamnet.vn/phap-luat-page' + str(i))
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parseBig)
+
+    def parseBig(self, response):
+        for nextUrl in response.css('.vnn-title a::attr(href)').getall():
+            if self.cnt >= self.pageLimit:
+                return
+            yield response.follow(nextUrl, callback=self.parse)
 
     def parse(self, response):
         if self.cnt >= self.pageLimit:
             return
 
         contents = response.css('.main-content ::text')
-        category = response.css('.bread-crumb-detail  a::attr(title)').get()
+        category = response.css('.bread-crumb-detail  a::attr(title)').getall()
         keywords = response.css('meta[name*=keywords]::attr(content)').get()
         title = response.css('title::text').get().strip()
         if contents and response.css('.bread-crumb-detail  a::attr(title)').get() \
-                and category != 'Video' and category != 'Premium':
+                and category[0] == 'Pháp luật':
             self.cnt += 1
-            if 50 < random.randint(0, 100) <= 80:
-                ftest = open('scrapy_test/spiders/Output/testSet.txt', 'a+', encoding='utf-8')
-                ftestans = open('scrapy_test/spiders/Output/testAns.txt', 'a+', encoding='utf-8')
-                ftest.write(title + ' ' + response.css('meta[name*=description]::attr(content)').get().strip() + ' ')
-                for p in contents:
-                    ftest.write(p.get().strip().replace('\n', ' ') + ' ')
-                ftest.write('\n')
-                ftestans.write(getSubjectName(category, keywords, title) + '\n')
-                ftest.close()
-                ftestans.close()
-
-            else:
-                ftrain = open('scrapy_test/spiders/Output/trainSet.txt', 'a+', encoding='utf-8')
-                ftrain.write(getSubjectName(category, keywords, title) + '  ')
-                ftrain.write(title + ' ' + response.css('meta[name*=description]::attr(content)').get().strip() + ' ')
-                for p in contents:
-                    ftrain.write(p.get().strip().replace('\n', ' ') + ' ')
-                ftrain.write('\n')
-                ftrain.close()
+            ftrain = open('spiders/Output/KH.txt', 'a+', encoding='utf-8')
+            # ftrain.write(getSubjectName(category[1], keywords, title) + '\t')
+            ftrain.write('__PL__\t')
+            ftrain.write(title + ' ' + response.css('meta[name*=description]::attr(content)').get().strip() + ' ')
+            for p in contents:
+                ftrain.write(p.get().strip().replace('\n', ' ') + ' ')
+            ftrain.write('\n')
+            ftrain.close()
 
             yield {
                 'URL': response.url,
                 'Title': title,
-                'Category': category,
+                'Category': category[1],
                 'Keywords': keywords,
                 'Publish date': response.css('.bread-crumb-detail__time p::text').get(),
                 'Cnt': self.cnt
             }
-
-        for nextUrl in response.css('.main-v1 a::attr(href), .main-content a::attr(href)').getall():
-            if self.cnt >= self.pageLimit:
-                return
-            yield response.follow(nextUrl, callback=self.parse)
 
 
 def getSubjectName(category, keywords, title):
